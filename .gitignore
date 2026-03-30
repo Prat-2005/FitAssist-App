@@ -1,0 +1,36 @@
+# Environment variables — never push real keys
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+build/
+docs/
+
+# Android APK builds
+*.apk
+*.aab
+
+# Database
+*.sqlite
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.iml
