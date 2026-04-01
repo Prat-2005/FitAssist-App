@@ -4,7 +4,7 @@ Handles caching and session management with Redis
 """
 
 import os
-import redis
+import redis.asyncio as redis
 from typing import Optional
 
 # Get Redis URL from environment
@@ -16,7 +16,6 @@ REDIS_URL = os.getenv(
 # Initialize Redis client
 # TODO: Configure connection pooling and other parameters for production
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
-
 
 def get_redis_client() -> redis.Redis:
     """
