@@ -3,18 +3,149 @@ Fitness Plan Routes
 Handles fitness plan generation, retrieval, and updates
 """
 
+import asyncio
+import redis
+from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, status, Depends
+from ai.generator import generate_workout_plan, generate_nutrition_plan
+from db.redis import get_redis_client
 
 router = APIRouter()
 
+from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
 
-@router.post("/generate")
-async def generate_plan():
+class UserProfile(BaseModel):
+    user_id: str = "anonymous"
+    goal: str = "General Fitness"
+    fitness_level: str = "Beginner"
+    days_per_week: int = 3
+    equipment: str = "None"
+    duration_minutes: int = 30
+    age: Optional[int] = None
+    weight_kg: Optional[float] = None
+    dietary_preference: Optional[str] = None
+
+    model_config = {
+        "extra": "allow"
+    }
+
+@router.post("/generate-workout-plan")
+async def generate_workout_endpoint(profile: UserProfile):
     """
-    Generate a personalized fitness plan using AI
-    TODO: Implement plan generation with AI (Gemini/Groq API)
+    Generate a personalized workout plan using AI.
+    Includes rate limiting of 2 requests per user per day.
     """
-    pass
+    redis_client = get_redis_client()
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    user_id = profile.user_id
+    
+    global_key = f"rate_limit:global:{date_str}"
+    workout_key = f"workout_requests:{user_id}:{date_str}"
+    
+    try:
+        # Check global rate limit
+        global_requests = redis_client.get(global_key)
+        if global_requests and int(global_requests) >= 1400:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Global daily API limit exceeded."
+            )
+            
+        # Check user workout rate limit
+        requests_today = redis_client.get(workout_key)
+        if requests_today and int(requests_today) >= 2:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="You have already generated your workout plan for today. Come back tomorrow!"
+            )
+    except redis.RedisError as e:
+        print(f"Redis connection error during rate limit check: {e}")
+        pass
+
+    try:
+        # Pydantic v2 compatible dict dump
+        profile_dict = profile.model_dump() if hasattr(profile, "model_dump") else profile.dict()
+        plan = await generate_workout_plan(profile_dict)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate workout plan: {str(e)}"
+        )
+        
+    try:
+        # Increment counters after success
+        global_count = redis_client.incr(global_key)
+        if global_count == 1:
+            redis_client.expire(global_key, 86400)
+            
+        user_count = redis_client.incr(workout_key)
+        if user_count == 1:
+            redis_client.expire(workout_key, 86400)
+    except redis.RedisError as e:
+        print(f"Redis connection error during counter increment: {e}")
+        pass
+
+    return {"workout_plan": plan}
+
+
+@router.post("/generate-nutrition-plan")
+async def generate_nutrition_endpoint(profile: UserProfile):
+    """
+    Generate a personalized nutrition plan using AI.
+    Includes rate limiting of 2 requests per user per day.
+    """
+    redis_client = get_redis_client()
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    user_id = profile.user_id
+    
+    global_key = f"rate_limit:global:{date_str}"
+    nutrition_key = f"nutrition_requests:{user_id}:{date_str}"
+    
+    try:
+        # Check global rate limit
+        global_requests = redis_client.get(global_key)
+        if global_requests and int(global_requests) >= 1400:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Global daily API limit exceeded."
+            )
+            
+        # Check user nutrition rate limit
+        requests_today = redis_client.get(nutrition_key)
+        if requests_today and int(requests_today) >= 2:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="You have already generated your nutrition plan for today. Come back tomorrow!"
+            )
+    except redis.RedisError as e:
+        print(f"Redis connection error during rate limit check: {e}")
+        pass
+
+    try:
+        profile_dict = profile.model_dump() if hasattr(profile, "model_dump") else profile.dict()
+        plan = await generate_nutrition_plan(profile_dict)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate nutrition plan: {str(e)}"
+        )
+        
+    try:
+        # Increment counters after success
+        global_count = redis_client.incr(global_key)
+        if global_count == 1:
+            redis_client.expire(global_key, 86400)
+            
+        user_count = redis_client.incr(nutrition_key)
+        if user_count == 1:
+            redis_client.expire(nutrition_key, 86400)
+    except redis.RedisError as e:
+        print(f"Redis connection error during counter increment: {e}")
+        pass
+
+    return {"nutrition_plan": plan}
 
 
 @router.get("/current")
