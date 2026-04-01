@@ -61,6 +61,15 @@ async def generate_nutrition_with_groq(profile: dict) -> dict:
     Fallback function to generate nutrition plans using Groq SDK and Llama 3.3.
     """
     logger.info("Triggering Groq fallback for nutrition plan generation.")
+    if groq_client is None:
+        logger.error("Groq client not initialized (GROQ_API_KEY missing)")
+        return {
+            "plan_name": "Service Unavailable",
+            "daily_calories_target": 0,
+            "summary": "Our systems are currently unable to generate your nutrition plan. Please try again later.",
+            "nutrition_tips": [],
+            "days": []
+        }
     try:
         user_prompt = build_nutrition_prompt(profile)
         
