@@ -45,17 +45,24 @@ async def generate_workout_endpoint(profile: UserProfile):
     workout_key = f"workout_requests:{user_id}:{date_str}"
     
     try:
-        # Check global rate limit
-        global_requests = redis_client.get(global_key)
-        if global_requests and int(global_requests) >= 1400:
+       # Atomically increment and check global rate limit
+        global_count = redis_client.incr(global_key)
+        if global_count == 1:
+            redis_client.expire(global_key, 86400)
+        if global_count > 1400:
+            redis_client.decr(global_key)
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Global daily API limit exceeded."
             )
             
-        # Check user workout rate limit
-        requests_today = redis_client.get(workout_key)
-        if requests_today and int(requests_today) >= 2:
+        # Atomically increment and check user rate limit
+        user_count = redis_client.incr(workout_key)
+        if user_count == 1:
+            redis_client.expire(workout_key, 86400)
+        if user_count > 2:
+            redis_client.decr(workout_key)
+            redis_client.decr(global_key)  # Rollback global too
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="You have already generated your workout plan for today. Come back tomorrow!"
@@ -71,21 +78,8 @@ async def generate_workout_endpoint(profile: UserProfile):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate workout plan: {str(e)}"
-        )
-        
-    try:
-        # Increment counters after success
-        global_count = redis_client.incr(global_key)
-        if global_count == 1:
-            redis_client.expire(global_key, 86400)
-            
-        user_count = redis_client.incr(workout_key)
-        if user_count == 1:
-            redis_client.expire(workout_key, 86400)
-    except redis.RedisError as e:
-        print(f"Redis connection error during counter increment: {e}")
-        pass
+            detail=f"Failed to generate workout plan: {e!s}"
+        ) from e
 
     return {"workout_plan": plan}
 

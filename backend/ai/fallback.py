@@ -14,9 +14,8 @@ logger = logging.getLogger(__name__)
 
 # Initialize the Groq client
 # The SDK automatically looks for the GROQ_API_KEY environment variable.
-groq_client = AsyncGroq(
-    api_key=os.getenv("GROQ_API_KEY"),
-)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+groq_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 

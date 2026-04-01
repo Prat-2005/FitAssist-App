@@ -9,8 +9,11 @@ from .fallback import generate_with_groq, generate_nutrition_with_groq
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    logger.warning("GEMINI_API_KEY not set; Gemini generation will fail")
+
+genai.configure(api_key=GEMINI_API_KEY)
 
 def validate_plan_schema(plan: dict) -> bool:
     """
