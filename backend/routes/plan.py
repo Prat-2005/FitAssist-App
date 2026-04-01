@@ -46,36 +46,43 @@ async def generate_workout_endpoint(profile: UserProfile):
     
     try:
        # Atomically increment and check global rate limit
-        global_count = redis_client.incr(global_key)
+        global_count = await redis_client.incr(global_key)
         if global_count == 1:
-            redis_client.expire(global_key, 86400)
+            await redis_client.expire(global_key, 86400)
         if global_count > 1400:
-            redis_client.decr(global_key)
+            await redis_client.decr(global_key)
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Global daily API limit exceeded."
             )
             
         # Atomically increment and check user rate limit
-        user_count = redis_client.incr(workout_key)
+        user_count = await redis_client.incr(workout_key)
         if user_count == 1:
-            redis_client.expire(workout_key, 86400)
+            await redis_client.expire(workout_key, 86400)
         if user_count > 2:
-            redis_client.decr(workout_key)
-            redis_client.decr(global_key)  # Rollback global too
+            await redis_client.decr(workout_key)
+            await redis_client.decr(global_key)  # Rollback global too
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="You have already generated your workout plan for today. Come back tomorrow!"
             )
     except redis.RedisError as e:
-        print(f"Redis connection error during rate limit check: {e}")
-        pass
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Rate limiter temporarily unavailable. Please try again later."
+        ) from e
 
     try:
         # Pydantic v2 compatible dict dump
         profile_dict = profile.model_dump() if hasattr(profile, "model_dump") else profile.dict()
         plan = await generate_workout_plan(profile_dict)
     except Exception as e:
+        try:
+            await redis_client.decr(workout_key)
+            await redis_client.decr(global_key)
+        except redis.RedisError:
+            pass
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate workout plan: {e!s}"
@@ -99,23 +106,23 @@ async def generate_nutrition_endpoint(profile: UserProfile):
     
     try:
         # Atomically increment and check global rate limit
-        global_count = redis_client.incr(global_key)
+        global_count = await redis_client.incr(global_key)
         if global_count == 1:
-            redis_client.expire(global_key, 86400)
+            await redis_client.expire(global_key, 86400)
         if global_count > 1400:
-            redis_client.decr(global_key)
+            await redis_client.decr(global_key)
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Global daily API limit exceeded."
             )
             
         # Atomically increment and check user rate limit
-        user_count = redis_client.incr(nutrition_key)
+        user_count = await redis_client.incr(nutrition_key)
         if user_count == 1:
-            redis_client.expire(nutrition_key, 86400)
+            await redis_client.expire(nutrition_key, 86400)
         if user_count > 2:
-            redis_client.decr(nutrition_key)
-            redis_client.decr(global_key)  # Rollback global too
+            await redis_client.decr(nutrition_key)
+            await redis_client.decr(global_key)  # Rollback global too
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="You have already generated your nutrition plan for today. Come back tomorrow!"
@@ -130,8 +137,8 @@ async def generate_nutrition_endpoint(profile: UserProfile):
     except Exception as e:
         # Rollback counters on generation failure
         try:
-            redis_client.decr(nutrition_key)
-            redis_client.decr(global_key)
+            await redis_client.decr(nutrition_key)
+            await redis_client.decr(global_key)
         except redis.RedisError:
             pass
         raise HTTPException(
