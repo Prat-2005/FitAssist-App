@@ -66,10 +66,13 @@ async def startup_event():
     
     # Check redis connection
     redis_client = get_redis_client()
+    import db.redis
     try:
         await redis_client.ping()
+        db.redis.REDIS_AVAILABLE = True
     except Exception as e:
-        print(f"Warning: Redis connection failed: {e}")
+        db.redis.REDIS_AVAILABLE = False
+        print(f"Warning: Redis connection failed. Security checks gracefully degrading. {e}")
 
 
 @app.on_event("shutdown")

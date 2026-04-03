@@ -30,6 +30,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     Also checks redis blacklist for revoked tokens.
     """
     token = credentials.credentials
+    import db.redis
+    if not db.redis.REDIS_AVAILABLE:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Security Service (Redis) is currently offline. Cannot securely verify token blacklist status."
+        )
+
     # Check if token is blacklisted
     is_blacklisted = await cache_get(f"blacklist_{token}")
     if is_blacklisted:
@@ -68,6 +75,11 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
     """
     Verify JWT token if present, otherwise gracefully return None.
     """
+    import db.redis
+    if not db.redis.REDIS_AVAILABLE:
+        # Gracefully degrade to unauthenticated state if system cannot verify revocations
+        return None
+
     if not credentials:
         return None
     token = credentials.credentials

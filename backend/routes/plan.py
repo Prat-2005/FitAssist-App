@@ -134,9 +134,11 @@ async def generate_nutrition_endpoint(profile: UserProfile, current_user: Option
                 detail="You have already generated your nutrition plan for today. Come back tomorrow!"
             )
     except redis.RedisError as e:
-        print(f"Redis connection error during rate limit check: {e}")
-        pass
-
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Rate limiter temporarily unavailable. Please try again later."
+        ) from e
+        
     try:
         profile_dict = profile.model_dump() if hasattr(profile, "model_dump") else profile.dict()
         profile_dict["user_id"] = user_id

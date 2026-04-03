@@ -24,6 +24,8 @@ def get_redis_client() -> redis.Redis:
     return redis_client
 
 
+REDIS_AVAILABLE = False  # Track cluster health deterministically safely
+
 CACHE_PREFIX = "fitassist:"  # Define at module level
 
 

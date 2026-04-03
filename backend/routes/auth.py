@@ -89,13 +89,16 @@ async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     payload = verify_token(token)
     exp = payload.get("exp")
-    if exp:
-        now = datetime.datetime.utcnow().timestamp()
-        ttl = int(exp - now)
-        if ttl > 0:
-            if not await cache_set(f"blacklist_{token}", "revoked", ttl=ttl):
-                raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="Token revocation is temporarily unavailable",
-                )
+    if not exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token missing expiration claim",
+        )
+    now = datetime.datetime.now(datetime.timezone.utc).timestamp()
+    ttl = max(1, int(exp - now))  # At least 1 second TTL
+    if not await cache_set(f"blacklist_{token}", "revoked", ttl=ttl):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Token revocation is temporarily unavailable",
+        )
     return {"message": "Successfully logged out"}
