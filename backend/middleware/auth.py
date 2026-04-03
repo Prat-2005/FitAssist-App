@@ -6,51 +6,95 @@ Handles JWT token verification and user authentication
 import os
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import Request, HTTPException, status
-from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi import Request, HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
+import bcrypt
 
 # Get JWT secret from environment
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not JWT_SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY must be set")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-class JWTMiddleware(BaseHTTPMiddleware):
+from sqlalchemy.orm import Session
+from db import get_db, cache_get
+from models import User
+
+security = HTTPBearer()
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     """
-    JWT authentication middleware
-    TODO: Implement token verification and user context injection
-    
-    NOTE: This middleware is disabled by default in main.py until fully implemented.
-    To use, uncomment in main.py and complete the implementation below.
+    Verify JWT token and retrieve the current user.
+    Also checks redis blacklist for revoked tokens.
     """
-
-    async def dispatch(self, request: Request, call_next):
-        """
-        Process request and verify JWT token
-        TODO: Extract and validate JWT from Authorization header
-        TODO: Inject user context into request state
-        """
-        # Skip token verification for public endpoints
-        public_endpoints = ["/health", "/api/auth/register", "/api/auth/login", "/docs", "/openapi.json"]
+    token = credentials.credentials
+    # Check if token is blacklisted
+    is_blacklisted = await cache_get(f"blacklist_{token}")
+    if is_blacklisted:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
         
-        if request.url.path in public_endpoints or any(request.url.path.startswith(ep) for ep in public_endpoints):
-            return await call_next(request)
+    payload = verify_token(token)
+    email = payload.get("sub")
+    if email is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    from starlette.concurrency import run_in_threadpool
+    def get_user_from_db():
+        return db.query(User).filter(User.email == email).first()
+        
+    user = await run_in_threadpool(get_user_from_db)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
 
-        # TODO: Implement JWT verification
-        # - Extract token from Authorization header
-        # - Verify token signature and expiration
-        # - Extract user information from token
-        # - Store in request.state for route handlers
 
-        response = await call_next(request)
-        return response
+security_optional = HTTPBearer(auto_error=False)
+
+async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional), db: Session = Depends(get_db)):
+    """
+    Verify JWT token if present, otherwise gracefully return None.
+    """
+    if not credentials:
+        return None
+    token = credentials.credentials
+        
+    is_blacklisted = await cache_get(f"blacklist_{token}")
+    if is_blacklisted:
+        return None
+        
+    try:
+        payload = verify_token(token)
+        email = payload.get("sub")
+        if not email:
+            return None
+    except HTTPException:
+        return None
+        
+    from starlette.concurrency import run_in_threadpool
+    def get_user_from_db():
+        return db.query(User).filter(User.email == email).first()
+        
+    user = await run_in_threadpool(get_user_from_db)
+    return user
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Create JWT access token
-    TODO: Implement token generation with expiration
     
     Args:
         data: Dictionary containing token claims
@@ -59,13 +103,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     Returns:
         str: Encoded JWT token
     """
-    pass
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=7)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 
 def verify_token(token: str) -> dict:
     """
     Verify JWT token and return payload
-    TODO: Implement token verification with error handling
     
     Args:
         token: JWT token string
@@ -76,13 +127,26 @@ def verify_token(token: str) -> dict:
     Raises:
         HTTPException: If token is invalid or expired
     """
-    pass
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 def hash_password(password: str) -> str:
     """
     Hash password using bcrypt
-    TODO: Implement bcrypt password hashing
     
     Args:
         password: Plain text password
@@ -90,13 +154,15 @@ def hash_password(password: str) -> str:
     Returns:
         str: Hashed password
     """
-    pass
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
+    return hashed_password.decode('utf-8')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify password against hash
-    TODO: Implement bcrypt password verification
     
     Args:
         plain_password: Plain text password
@@ -105,4 +171,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True if password matches
     """
-    pass
+    password_byte_enc = plain_password.encode('utf-8')
+    hashed_password_byte_enc = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_byte_enc, hashed_password_byte_enc)

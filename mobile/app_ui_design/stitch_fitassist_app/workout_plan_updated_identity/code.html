@@ -1,0 +1,260 @@
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#131317",
+            "surface-tint": "#00daf0",
+            "error-container": "#93000a",
+            "tertiary-fixed-dim": "#f2c027",
+            "background": "#131317",
+            "on-primary-fixed-variant": "#004f57",
+            "on-surface": "#e4e1e7",
+            "inverse-surface": "#e4e1e7",
+            "primary-container": "#00e8ff",
+            "on-primary": "#00363d",
+            "surface-container-highest": "#353439",
+            "primary-fixed": "#95f1ff",
+            "outline": "#849396",
+            "on-secondary-container": "#89c2cb",
+            "on-background": "#e4e1e7",
+            "tertiary": "#ffedc8",
+            "surface-dim": "#131317",
+            "on-secondary-fixed-variant": "#0b4e56",
+            "on-error-container": "#ffdad6",
+            "secondary-container": "#105159",
+            "primary-fixed-dim": "#00daf0",
+            "on-primary-container": "#00646f",
+            "surface-container-lowest": "#0e0e12",
+            "tertiary-fixed": "#ffdf92",
+            "on-error": "#690005",
+            "surface-bright": "#39393d",
+            "on-primary-fixed": "#001f24",
+            "secondary": "#97d0d9",
+            "tertiary-container": "#ffcc34",
+            "on-surface-variant": "#bac9cc",
+            "on-tertiary-container": "#715700",
+            "surface-container-high": "#2a292e",
+            "surface-container-low": "#1b1b1f",
+            "on-secondary-fixed": "#001f24",
+            "inverse-primary": "#006874",
+            "outline-variant": "#3b494c",
+            "surface-container": "#1f1f23",
+            "surface-variant": "#353439",
+            "secondary-fixed-dim": "#97d0d9",
+            "on-tertiary-fixed-variant": "#594400",
+            "inverse-on-surface": "#303034",
+            "secondary-fixed": "#b3ecf6",
+            "on-secondary": "#00363d",
+            "on-tertiary": "#3e2e00",
+            "primary": "#c9f7ff",
+            "error": "#ffb4ab",
+            "on-tertiary-fixed": "#241a00"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .precision-pulse {
+      background-image: linear-gradient(90deg, transparent 75%, #131317 75%);
+      background-size: 8px 100%;
+    }
+    .glass-card {
+      background: rgba(31, 31, 35, 0.6);
+      backdrop-filter: blur(12px);
+    }
+    .ghost-border {
+      border: 1px solid rgba(59, 73, 76, 0.15);
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-[#131317]/80 backdrop-blur-xl fixed top-0 w-full z-50 flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#00E8FF] hover:opacity-80 transition-opacity active:scale-90 duration-200 cursor-pointer" data-icon="menu">menu</span>
+<h1 class="font-['Inter'] font-black text-2xl tracking-tighter text-[#e4e1e7] drop-shadow-[0_0_8px_rgba(0,232,255,0.2)] uppercase">FIT<span class="text-[#00E8FF]">/</span>ASSIST</h1>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden ghost-border active:scale-90 duration-200 cursor-pointer">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a determined athlete with sweat on brow, dramatic high-contrast lighting, dark background, cinematic quality" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzMsGfohWAvSygW5TZ9qNTXT1dNvXHr8t0ys7YOmY1Of93LDMV1KwVwDhQWVHVsG7ZJddPcHAG_Ls7vwYsuanEKmR5SfZou9S_dApfmjVLa9tIHv2SDHLmir6iPgWzPhWy4U_H8cxHPsGhfl4dh7mW0HabWpFUVbKLdcT_OwaFitmg_5T-tCrlo8dx1adVcecRvLNIDOBZmCDY0piYvm1DowviA8NmcYvIK60-5c6rgH0XIocoaed9aKP8bkSeEJXa68y3As-AwY8"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-4xl mx-auto">
+<!-- Header Section -->
+<header class="mb-10">
+<h2 class="text-[28px] font-bold text-[#e4e1e7] leading-none mb-6">Your 7-Day Plan</h2>
+<!-- Horizontal Day Selector -->
+<div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+<!-- Active Day -->
+<button class="flex-shrink-0 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-bold text-sm tracking-tight active:scale-95 transition-transform">
+        Day 1
+      </button>
+<!-- Inactive Days -->
+<button class="flex-shrink-0 bg-surface-container-high ghost-border text-on-surface/60 px-6 py-3 rounded-lg font-bold text-sm tracking-tight hover:text-on-surface active:scale-95 transition-transform">
+        Day 2
+      </button>
+<button class="flex-shrink-0 bg-surface-container-high ghost-border text-on-surface/60 px-6 py-3 rounded-lg font-bold text-sm tracking-tight hover:text-on-surface active:scale-95 transition-transform">
+        Day 3
+      </button>
+<button class="flex-shrink-0 bg-surface-container-high ghost-border text-on-surface/60 px-6 py-3 rounded-lg font-bold text-sm tracking-tight hover:text-on-surface active:scale-95 transition-transform">
+        Day 4
+      </button>
+<button class="flex-shrink-0 bg-surface-container-high ghost-border text-on-surface/60 px-6 py-3 rounded-lg font-bold text-sm tracking-tight hover:text-on-surface active:scale-95 transition-transform">
+        Day 5
+      </button>
+<button class="flex-shrink-0 bg-surface-container-high ghost-border text-on-surface/60 px-6 py-3 rounded-lg font-bold text-sm tracking-tight hover:text-on-surface active:scale-95 transition-transform">
+        Day 6
+      </button>
+<button class="flex-shrink-0 bg-surface-container-high ghost-border text-on-surface/60 px-6 py-3 rounded-lg font-bold text-sm tracking-tight hover:text-on-surface active:scale-95 transition-transform">
+        Day 7
+      </button>
+</div>
+</header>
+<!-- Workout Grid -->
+<div class="grid grid-cols-1 gap-10">
+<!-- Exercise Card 1: Deadlift (Risky) -->
+<section class="glass-card ghost-border rounded-xl p-6 relative overflow-hidden group hover:bg-surface-container transition-colors duration-300">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="w-full md:w-40 h-40 rounded-lg overflow-hidden ghost-border">
+<img alt="Deadlift" class="w-full h-full object-cover" data-alt="High-intensity shot of a heavy barbell being lifted from a gym floor, chalk dust in the air, aggressive cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOxpNw4HctWbuIa9YHv_Shfhxba9tLyo28HLGE5WbI_BH_aeHaFeXbxmBOPt7Dj_VmclsRQW97fWXy7W3DRCr5e8FVJrgrViyHU2p852_M8w9OIrOVcCoCVOUofuvMf41ZyuAmQd6K6rcQUZP7xKSVZxAvnH1LeZ2EbZ4OBlZrAyTi7bhHWkoBDCd3xzW9cQh3ZlkCIDRYgZUi_0xCQJJX1XYggfdZy9jVP6JRyYUGKv_96yVXuZRI9lNEOYDmVYX04QMqrnjajpk"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-2xl font-black italic tracking-tighter uppercase text-on-surface">Conventional Deadlift</h3>
+<!-- Caution Warning Chip -->
+<div class="flex items-center gap-1.5 bg-[#FF4C4C]/15 border border-[#FF4C4C]/30 px-3 py-1 rounded-lg text-[#FF4C4C] animate-pulse">
+<span class="material-symbols-outlined text-[18px]" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-[10px] font-bold tracking-widest uppercase">High Risk</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-3 mb-6">
+<div class="bg-surface-container-lowest ghost-border px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="text-[10px] font-medium tracking-[0.05em] uppercase text-secondary">Sets x Reps</span>
+<span class="text-primary-container font-black">4 x 8</span>
+</div>
+<div class="bg-surface-container-lowest ghost-border px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="text-[10px] font-medium tracking-[0.05em] uppercase text-secondary">Rest</span>
+<span class="text-primary-container font-black">120s</span>
+</div>
+</div>
+<!-- Quick Fix Tip -->
+<div class="bg-surface-container-low rounded-lg p-4 border-l-2 border-primary-container">
+<p class="text-sm text-on-surface-variant leading-relaxed">
+<span class="text-primary-container font-bold uppercase text-[10px] block mb-1">Quick Fix Tip</span>
+              Engage your lats by "pulling" the bar into your shins before the lift starts. Keep a neutral spine to avoid lumbar strain.
+            </p>
+</div>
+</div>
+</div>
+<!-- Precision Pulse Visual -->
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary-container/20 overflow-hidden">
+<div class="w-2/3 h-full bg-primary-container precision-pulse"></div>
+</div>
+</section>
+<!-- Exercise Card 2: Pull-ups -->
+<section class="glass-card ghost-border rounded-xl p-6 relative overflow-hidden group hover:bg-surface-container transition-colors duration-300">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="w-full md:w-40 h-40 rounded-lg overflow-hidden ghost-border">
+<img alt="Pull Ups" class="w-full h-full object-cover" data-alt="Muscular back of a person performing a wide-grip pull-up, dramatic side lighting highlighting muscle definition, moody atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbWOlsYAQpvj82SN6owE6p-1uDPgr1FM8J9LuvqgdARmEsu54JbZr52qLl74OXVNqASd0VLCTl3DYtWpvvYEbVhFRgTN04qDB4IlgxoGQHW78kBlL3KcHIsQ-PImMPYwdZoXCLsT_PuDLD1xMU5NGMhyg-cUBp6-o28egBgmdy5XH4fgStsBpZNR6DfrtYWqwwQRBvurCKezqF682pZPzX2rhPppqWNfF291TxnQixsGCUr_AKUSt2_gEdVHqqNJ2-KocYCfcRw3A"/>
+</div>
+<div class="flex-1">
+<h3 class="text-2xl font-black italic tracking-tighter uppercase text-on-surface mb-4">Weighted Pull-Ups</h3>
+<div class="flex flex-wrap gap-3 mb-6">
+<div class="bg-surface-container-lowest ghost-border px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="text-[10px] font-medium tracking-[0.05em] uppercase text-secondary">Sets x Reps</span>
+<span class="text-primary-container font-black">3 x Max</span>
+</div>
+<div class="bg-surface-container-lowest ghost-border px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="text-[10px] font-medium tracking-[0.05em] uppercase text-secondary">Rest</span>
+<span class="text-primary-container font-black">90s</span>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed italic">
+            Focus on driving the elbows down and back. Squeeze the shoulder blades at the top of the movement for maximum lat activation.
+          </p>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary-container/20 overflow-hidden">
+<div class="w-1/2 h-full bg-primary-container precision-pulse"></div>
+</div>
+</section>
+<!-- Exercise Card 3: Shoulder Press -->
+<section class="glass-card ghost-border rounded-xl p-6 relative overflow-hidden group hover:bg-surface-container transition-colors duration-300">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="w-full md:w-40 h-40 rounded-lg overflow-hidden ghost-border">
+<img alt="Shoulder Press" class="w-full h-full object-cover" data-alt="Dumbbells being pressed overhead in a dark gym setting, glowing blue neon accents in background, sharp focus on weights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhR2urOxROBueQ-1m9BSt6EHiZnoY0WzQnLVJaQfDNMDZFzCXol-VV5mTeVMxt_WdGExctWOXy_0IN56gxK462gQgQ0ac4zqiTPEx6XnlkTC5N3GU2Bl9W9ln2oe6skuF1y6_cu7j6HvGcqXkeidPIj6pKMqzaWiSBb1wynKjPHYFaLstjZJk5pmSZo99dA0XSOwflJAIOmkYSZbWm_Foe3LjQNamndt_sBNxflPNDRaImOKZRQ0uQa5a9e04gNfzDKA8nRlO_e7Q"/>
+</div>
+<div class="flex-1">
+<h3 class="text-2xl font-black italic tracking-tighter uppercase text-on-surface mb-4">Military Press</h3>
+<div class="flex flex-wrap gap-3 mb-6">
+<div class="bg-surface-container-lowest ghost-border px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="text-[10px] font-medium tracking-[0.05em] uppercase text-secondary">Sets x Reps</span>
+<span class="text-primary-container font-black">4 x 10</span>
+</div>
+<div class="bg-surface-container-lowest ghost-border px-3 py-1.5 rounded-lg flex items-center gap-2">
+<span class="text-[10px] font-medium tracking-[0.05em] uppercase text-secondary">Rest</span>
+<span class="text-primary-container font-black">60s</span>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-4 border-l-2 border-secondary">
+<p class="text-sm text-on-surface-variant leading-relaxed">
+<span class="text-secondary font-bold uppercase text-[10px] block mb-1">Execution Key</span>
+              Keep your core tight and glutes squeezed to prevent arching your lower back as the weight goes overhead.
+            </p>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary-container/20 overflow-hidden">
+<div class="w-1/4 h-full bg-primary-container precision-pulse"></div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-[#131317]/60 backdrop-blur-lg fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-safe z-50 shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.4)] border-t border-[#3b494c]/15">
+<a class="flex flex-col items-center justify-center text-[#97d0d9] opacity-70 hover:text-[#00E8FF] transition-colors scale-98 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_precision">precision_manufacturing</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase mt-1">Home</span>
+</a>
+<!-- Active Tab: Workout -->
+<a class="flex flex-col items-center justify-center text-[#00E8FF] bg-[#1f1f23] rounded-lg px-6 py-2 scale-98 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="exercise" style="font-variation-settings: 'FILL' 1;">exercise</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase mt-1">Workout</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#97d0d9] opacity-70 hover:text-[#00E8FF] transition-colors scale-98 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase mt-1">Nutrition</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#97d0d9] opacity-70 hover:text-[#00E8FF] transition-colors scale-98 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

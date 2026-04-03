@@ -17,11 +17,14 @@ DATABASE_URL = os.getenv(
 )
 
 # Create database engine
-# TODO: Configure connection pooling and other engine parameters for production
+from sqlalchemy.pool import QueuePool
+
 engine = create_engine(
     DATABASE_URL,
-    poolclass=NullPool,  # Use NullPool for development; configure for production
-    echo=False  # Set to True for SQL debugging
+    poolclass=QueuePool,
+    pool_size=5,
+    max_overflow=10,
+    echo=False
 )
 
 # Create session factory
@@ -49,5 +52,7 @@ def init_db():
     Initialize database with all tables
     TODO: Run this on application startup to create tables
     """
+    # Import all models to ensure they are registered with Base.metadata before creating tables
+    import models
     # Create all tables using the shared Base
     Base.metadata.create_all(bind=engine)

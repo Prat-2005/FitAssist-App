@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container": "#1f1f23",
+            "on-error-container": "#ffdad6",
+            "on-primary-container": "#00646f",
+            "on-surface": "#e4e1e7",
+            "primary-fixed-dim": "#00daf0",
+            "on-secondary-container": "#89c2cb",
+            "secondary": "#97d0d9",
+            "secondary-container": "#105159",
+            "surface-bright": "#39393d",
+            "tertiary-container": "#ffcc34",
+            "tertiary-fixed": "#ffdf92",
+            "surface-variant": "#353439",
+            "on-tertiary-fixed-variant": "#594400",
+            "on-surface-variant": "#bac9cc",
+            "on-error": "#690005",
+            "inverse-surface": "#e4e1e7",
+            "tertiary": "#ffedc8",
+            "secondary-fixed": "#b3ecf6",
+            "error": "#ffb4ab",
+            "on-secondary-fixed": "#001f24",
+            "on-primary-fixed-variant": "#004f57",
+            "on-background": "#e4e1e7",
+            "primary-fixed": "#95f1ff",
+            "on-primary-fixed": "#001f24",
+            "background": "#131317",
+            "tertiary-fixed-dim": "#f2c027",
+            "on-tertiary-fixed": "#241a00",
+            "surface-container-low": "#1b1b1f",
+            "outline-variant": "#3b494c",
+            "primary-container": "#00e8ff",
+            "outline": "#849396",
+            "surface-dim": "#131317",
+            "surface-container-high": "#2a292e",
+            "on-secondary": "#00363d",
+            "surface": "#131317",
+            "on-secondary-fixed-variant": "#0b4e56",
+            "error-container": "#93000a",
+            "on-primary": "#00363d",
+            "on-tertiary": "#3e2e00",
+            "surface-tint": "#00daf0",
+            "surface-container-highest": "#353439",
+            "inverse-on-surface": "#303034",
+            "inverse-primary": "#006874",
+            "primary": "#c9f7ff",
+            "surface-container-lowest": "#0e0e12",
+            "secondary-fixed-dim": "#97d0d9",
+            "on-tertiary-container": "#715700"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-card {
+      background: rgba(26, 26, 30, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 232, 255, 0.15);
+    }
+    .precision-pulse {
+      background-image: linear-gradient(90deg, #00E8FF 75%, transparent 75%);
+      background-size: 8px 100%;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131317]/80 backdrop-blur-xl shadow-[0px_4px_30px_rgba(0,0,0,0.4)] h-16 flex justify-between items-center px-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#00E8FF] cursor-pointer active:scale-95 duration-200 transition-opacity hover:opacity-80">menu</span>
+<h1 class="font-['Inter'] font-black tracking-widest uppercase text-xl"><span class="text-white">FIT</span><span class="text-[#00E8FF]">/</span><span class="text-white">ASSIST</span></h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/20 active:scale-95 duration-200 transition-opacity hover:opacity-80">
+<img alt="Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a fit person with athletic gear in a moody gym setting with dramatic teal highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc4LEy-kRPz_0x_kGed7PpsTZdEhahpBWC63P9B1ndFvON44qkr2OheUAEG3-n7ERW-TT9biSjOQ0LsTpHqZjFVTmoEypWVLDLfJaP92J1sZp2G1hYR2GwXgblMzGzlIYquJclqPj0i4byrsaUR2yrd1wbMr-E22zc0KqrcKagDW6LfTb8iTbik10LuOwKysgkFMQY-bvcXsMEP4dNXI6iwPF2BnyxjqiyTjCl4Ss5wok8EnZQV5gN0z8L7UQr__n8eIjLsxoyXiM"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Header Section -->
+<div class="mb-10">
+<h2 class="text-4xl font-black tracking-tighter uppercase mb-2">Today's <span class="text-primary-container">Protocol</span></h2>
+<p class="text-on-surface-variant font-label text-sm tracking-widest uppercase">Performance Tracking &amp; Correction</p>
+</div>
+<!-- State A: Collapsed Card -->
+<div class="mb-10">
+<p class="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-4 opacity-60">State A: Ready</p>
+<div class="glass-card p-6 rounded-xl flex flex-col gap-4 active:scale-[0.98] transition-all duration-200 cursor-pointer">
+<div class="flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<h3 class="text-[20px] font-bold text-on-surface leading-tight tracking-tight">Barbell Back Squat</h3>
+<div class="flex flex-wrap gap-2 mt-2">
+<div class="px-3 py-1 border border-primary-container/30 rounded-lg bg-primary-container/5">
+<span class="text-[10px] font-medium uppercase tracking-widest text-primary-fixed-dim">4 x 10 REPS</span>
+</div>
+<div class="px-3 py-1 border border-primary-container/30 rounded-lg bg-primary-container/5">
+<span class="text-[10px] font-medium uppercase tracking-widest text-primary-fixed-dim">90s REST</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary opacity-50">expand_more</span>
+</div>
+</div>
+</div>
+<!-- State B: Expanded Card with Caution -->
+<div class="mb-10">
+<p class="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-4 opacity-60">State B: Intervention Required</p>
+<div class="glass-card p-6 rounded-xl border-primary-container/40">
+<div class="flex justify-between items-start mb-6">
+<div class="flex flex-col gap-1">
+<h3 class="text-[20px] font-bold text-on-surface leading-tight tracking-tight">Dumbbell Lateral Raise</h3>
+<div class="flex flex-wrap gap-2 mt-2">
+<div class="px-3 py-1 border border-primary-container/30 rounded-lg bg-primary-container/5">
+<span class="text-[10px] font-medium uppercase tracking-widest text-primary-fixed-dim">3 x 15 REPS</span>
+</div>
+<div class="px-3 py-1 border border-primary-container/30 rounded-lg bg-primary-container/5">
+<span class="text-[10px] font-medium uppercase tracking-widest text-primary-fixed-dim">60s REST</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary-container">expand_less</span>
+</div>
+<div class="space-y-6">
+<div class="space-y-2">
+<p class="text-[15px] text-on-surface-variant leading-relaxed font-body">
+              Maintain a slight bend in elbows. Raise dumbbells to shoulder height, keeping your pinkies slightly higher than your thumbs.
+            </p>
+</div>
+<!-- Caution Chip -->
+<div class="flex items-center gap-3 bg-[#FF4C4C]/10 border border-[#FF4C4C] p-3 rounded-lg">
+<span class="material-symbols-outlined text-[#FF4C4C]" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-[13px] font-bold text-[#FF4C4C] uppercase tracking-wider">Form Alert: Shoulder Shrugging</span>
+</div>
+<!-- Quick Fix -->
+<div class="border-l-2 border-[#FFB800] pl-4 py-1">
+<p class="text-[14px] text-[#FFB800] font-medium italic">
+              "Depress your scapula before starting the lift. Imagine pulling your shoulders away from your ears."
+            </p>
+</div>
+<!-- Visual Telemetry -->
+<div class="pt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-[10px] font-black uppercase tracking-tighter text-on-surface-variant">Kinetic Balance</span>
+<span class="text-xs font-bold text-primary-container">84% Optimal</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full w-[84%] bg-primary-container precision-pulse"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#131317]/90 backdrop-blur-lg border-t border-[#3b494c]/15 flex justify-around items-center px-4 h-20 z-50 shadow-[0px_-10px_40px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-[#97d0d9] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#00E8FF] border-t-2 border-[#00E8FF] drop-shadow-[0_0_8px_rgba(0,232,255,0.6)] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Workout</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#97d0d9] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">restaurant</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Nutrition</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#97d0d9] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

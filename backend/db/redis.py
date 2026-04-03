@@ -20,15 +20,16 @@ redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 def get_redis_client() -> redis.Redis:
     """
     Get Redis client instance
-    TODO: Implement connection health checks
     """
     return redis_client
+
+
+CACHE_PREFIX = "fitassist:"  # Define at module level
 
 
 async def cache_set(key: str, value: str, ttl: Optional[int] = None) -> bool:
     """
     Set a key-value pair in Redis cache
-    TODO: Implement with proper error handling
     
     Args:
         key: Cache key
@@ -38,13 +39,21 @@ async def cache_set(key: str, value: str, ttl: Optional[int] = None) -> bool:
     Returns:
         bool: True if successful
     """
-    pass
+    try:
+        full_key = f"{CACHE_PREFIX}{key}"
+        if ttl:
+            await redis_client.setex(full_key, ttl, value)
+        else:
+            await redis_client.set(full_key, value)
+        return True
+    except Exception as e:
+        print(f"Redis cache_set error for {key}: {e}")
+        return False
 
 
 async def cache_get(key: str) -> Optional[str]:
     """
     Get a value from Redis cache
-    TODO: Implement with proper error handling
     
     Args:
         key: Cache key
@@ -52,13 +61,17 @@ async def cache_get(key: str) -> Optional[str]:
     Returns:
         str or None: Cached value or None if not found
     """
-    pass
+    try:
+        full_key = f"{CACHE_PREFIX}{key}"
+        return await redis_client.get(full_key)
+    except Exception as e:
+        print(f"Redis cache_get error for {key}: {e}")
+        return None
 
 
 async def cache_delete(key: str) -> bool:
     """
     Delete a key from Redis cache
-    TODO: Implement with proper error handling
     
     Args:
         key: Cache key
@@ -66,15 +79,31 @@ async def cache_delete(key: str) -> bool:
     Returns:
         bool: True if successful
     """
-    pass
+    try:
+        full_key = f"{CACHE_PREFIX}{key}"
+        await redis_client.delete(full_key)
+        return True
+    except Exception as e:
+        print(f"Redis cache_delete error for {key}: {e}")
+        return False
 
 
 async def cache_clear() -> bool:
     """
-    Clear all cache
-    TODO: Implement cache clearing with proper error handling
+    Clear all application cache keys (not entire database)
     
     Returns:
         bool: True if successful
     """
-    pass
+    try:
+        cursor = 0
+        while True:
+            cursor, keys = await redis_client.scan(cursor, match=f"{CACHE_PREFIX}*", count=100)
+            if keys:
+                await redis_client.delete(*keys)
+            if cursor == 0:
+                break
+        return True
+    except Exception as e:
+        print(f"Redis cache_clear error: {e}")
+        return False

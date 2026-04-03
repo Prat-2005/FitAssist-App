@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FitAssist - Rest Day</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container": "#1f1f23",
+            "on-error-container": "#ffdad6",
+            "on-primary-container": "#00646f",
+            "on-surface": "#e4e1e7",
+            "primary-fixed-dim": "#00daf0",
+            "on-secondary-container": "#89c2cb",
+            "secondary": "#97d0d9",
+            "secondary-container": "#105159",
+            "surface-bright": "#39393d",
+            "tertiary-container": "#ffcc34",
+            "tertiary-fixed": "#ffdf92",
+            "surface-variant": "#353439",
+            "on-tertiary-fixed-variant": "#594400",
+            "on-surface-variant": "#bac9cc",
+            "on-error": "#690005",
+            "inverse-surface": "#e4e1e7",
+            "tertiary": "#ffedc8",
+            "secondary-fixed": "#b3ecf6",
+            "error": "#ffb4ab",
+            "on-secondary-fixed": "#001f24",
+            "on-primary-fixed-variant": "#004f57",
+            "on-background": "#e4e1e7",
+            "primary-fixed": "#95f1ff",
+            "on-primary-fixed": "#001f24",
+            "background": "#131317",
+            "tertiary-fixed-dim": "#f2c027",
+            "on-tertiary-fixed": "#241a00",
+            "surface-container-low": "#1b1b1f",
+            "outline-variant": "#3b494c",
+            "primary-container": "#00e8ff",
+            "outline": "#849396",
+            "surface-dim": "#131317",
+            "surface-container-high": "#2a292e",
+            "on-secondary": "#00363d",
+            "surface": "#131317",
+            "on-secondary-fixed-variant": "#0b4e56",
+            "error-container": "#93000a",
+            "on-primary": "#00363d",
+            "on-tertiary": "#3e2e00",
+            "surface-tint": "#00daf0",
+            "surface-container-highest": "#353439",
+            "inverse-on-surface": "#303034",
+            "inverse-primary": "#006874",
+            "primary": "#c9f7ff",
+            "surface-container-lowest": "#0e0e12",
+            "secondary-fixed-dim": "#97d0d9",
+            "on-tertiary-container": "#715700"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #131317;
+      color: #e4e1e7;
+      font-family: 'Inter', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .precision-pulse {
+      background-image: repeating-linear-gradient(90deg, #00e8ff, #00e8ff 8px, transparent 8px, transparent 10px);
+    }
+    .glass-card {
+      background: rgba(31, 31, 35, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(59, 73, 76, 0.15);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131317]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full shadow-[0px_4px_30px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#00E8FF] active:scale-95 duration-200 cursor-pointer" data-icon="menu">menu</span>
+<h1 class="text-xl font-black text-[#00E8FF] tracking-widest font-['Inter'] uppercase"><span class="text-[#FFFFFF]">FIT</span><span class="text-[#00E8FF] drop-shadow-[0_0_8px_rgba(0,232,255,0.8)]">/</span><span class="text-[#FFFFFF]">ASSIST</span></h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#3b494c]/15 active:scale-95 duration-200 cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="close up portrait of a professional athlete with focused expression and sharp lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_hNXUdJsSGuFPSnreg3Idr5TJ0hjFixiZYKtfUYDaJqbCFniV2VZ9aQ6DerOB52LXSCZVIwZmsmgZFypJ8VQBY5H1V3wdWxdRJ6lYn9CyVKVvTgpzgCCV6j470MRJ9ccVY1UYEIGMbK1oTweRNXyNhPzflsVSVa-LLrBMuUsj96Aarzna-gMECBphP3RBrhVSyoNzBlewlwWf5NWnMvg6-ral_u_WBLTIisAjsLVAHs3UANsFuvaDB5-MQrCTqZfHcwVLRRzQr8I"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Header Section -->
+<div class="mb-10">
+<p class="text-[10px] font-medium uppercase tracking-[0.2em] text-secondary mb-1">Status: Standby</p>
+<h2 class="text-4xl font-black tracking-tighter uppercase text-on-surface">System Recovery</h2>
+</div>
+<!-- Rest Day Main Card -->
+<section class="glass-card rounded-xl border-l-[3px] border-[#FFB800] p-6 mb-10">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="text-2xl">🌙</span>
+<h3 class="text-[22px] font-bold text-on-surface leading-tight">Rest Day</h3>
+</div>
+<p class="text-[15px] text-on-surface-variant leading-relaxed">Recovery is part of the plan. Today, your body repairs tissue and replenishes energy stores for peak performance tomorrow.</p>
+</div>
+</div>
+</section>
+<!-- Detailed Recovery Stats (Bento Style) -->
+<div class="grid grid-cols-1 gap-6">
+<div class="glass-card rounded-xl p-6 relative overflow-hidden">
+<div class="flex justify-between items-end mb-4">
+<div>
+<span class="text-[10px] font-medium uppercase tracking-widest text-secondary block mb-1">Body Battery</span>
+<span class="text-5xl font-black tracking-tighter text-on-surface">88<span class="text-xl text-primary-container">%</span></span>
+</div>
+<span class="material-symbols-outlined text-primary-container text-3xl" data-icon="bolt">bolt</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full w-[88%] precision-pulse"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="glass-card rounded-xl p-5">
+<span class="material-symbols-outlined text-[#FFB800] mb-3" data-icon="hotel">hotel</span>
+<p class="text-[10px] font-medium uppercase tracking-widest text-secondary mb-1">Sleep Score</p>
+<p class="text-2xl font-bold text-on-surface">92/100</p>
+</div>
+<div class="glass-card rounded-xl p-5">
+<span class="material-symbols-outlined text-primary-container mb-3" data-icon="water_drop">water_drop</span>
+<p class="text-[10px] font-medium uppercase tracking-widest text-secondary mb-1">Hydration</p>
+<p class="text-2xl font-bold text-on-surface">2.4<span class="text-sm font-medium ml-1">L</span></p>
+</div>
+</div>
+<!-- Suggested Activities -->
+<div class="mt-4">
+<h4 class="text-sm font-bold uppercase tracking-widest text-on-surface mb-6">Active Recovery Protocols</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/15 active:scale-[0.98] transition-transform">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="self_improvement">self_improvement</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">Guided Mobility Flow</p>
+<p class="text-xs text-on-surface-variant">15 mins • Low Intensity</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/15 active:scale-[0.98] transition-transform">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="directions_walk">directions_walk</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">Zone 1 Scenic Walk</p>
+<p class="text-xs text-on-surface-variant">30 mins • Active Rest</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#131317]/90 backdrop-blur-lg flex justify-around items-center px-4 z-50 border-t border-[#3b494c]/15 shadow-[0px_-10px_40px_rgba(0,0,0,0.5)]">
+<!-- Home -->
+<div class="flex flex-col items-center justify-center text-[#97d0d9] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Home</span>
+</div>
+<!-- Workout (Active) -->
+<div class="flex flex-col items-center justify-center text-[#00E8FF] border-t-2 border-[#00E8FF] drop-shadow-[0_0_8px_rgba(0,232,255,0.6)] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="fitness_center" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Workout</span>
+</div>
+<!-- Nutrition -->
+<div class="flex flex-col items-center justify-center text-[#97d0d9] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Nutrition</span>
+</div>
+<!-- Profile -->
+<div class="flex flex-col items-center justify-center text-[#97d0d9] pt-2 pb-4 hover:text-[#00E8FF]/80 transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FitAssist - Profile &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "secondary-fixed": "#b3ecf6",
+            "tertiary-fixed": "#ffdf92",
+            "primary-fixed": "#95f1ff",
+            "on-secondary-fixed-variant": "#0b4e56",
+            "inverse-primary": "#006874",
+            "surface": "#131317",
+            "on-tertiary": "#3e2e00",
+            "tertiary-fixed-dim": "#f2c027",
+            "surface-variant": "#353439",
+            "surface-container": "#1f1f23",
+            "surface-container-low": "#1b1b1f",
+            "on-primary": "#00363d",
+            "background": "#131317",
+            "primary": "#c9f7ff",
+            "outline-variant": "#3b494c",
+            "outline": "#849396",
+            "on-secondary-container": "#89c2cb",
+            "tertiary-container": "#ffcc34",
+            "surface-tint": "#00daf0",
+            "on-surface-variant": "#bac9cc",
+            "secondary-fixed-dim": "#97d0d9",
+            "primary-container": "#00e8ff",
+            "surface-bright": "#39393d",
+            "secondary-container": "#105159",
+            "tertiary": "#ffedc8",
+            "on-secondary": "#00363d",
+            "on-surface": "#e4e1e7",
+            "on-primary-fixed-variant": "#004f57",
+            "on-secondary-fixed": "#001f24",
+            "on-error-container": "#ffdad6",
+            "inverse-on-surface": "#303034",
+            "surface-container-highest": "#353439",
+            "on-tertiary-fixed": "#241a00",
+            "on-primary-container": "#00646f",
+            "secondary": "#97d0d9",
+            "on-error": "#690005",
+            "on-tertiary-fixed-variant": "#594400",
+            "surface-dim": "#131317",
+            "inverse-surface": "#e4e1e7",
+            "error-container": "#93000a",
+            "surface-container-high": "#2a292e",
+            "error": "#ffb4ab",
+            "primary-fixed-dim": "#00daf0",
+            "on-tertiary-container": "#715700",
+            "on-background": "#e4e1e7",
+            "on-primary-fixed": "#001f24",
+            "surface-container-lowest": "#0e0e12"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .precision-pulse-border {
+      background-image: linear-gradient(90deg, #00E8FF 75%, transparent 75%);
+      background-size: 8px 100%;
+    }
+    .glass-card {
+      background: rgba(31, 31, 35, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .vacuum-shadow {
+      box-shadow: 0 15px 40px -5px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131317]/80 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity scale-95 active:scale-90 duration-200" style="">
+<span class="material-symbols-outlined text-[#00E8FF]" style="">menu</span>
+</button>
+<h1 class="font-['Inter'] font-black text-2xl tracking-tighter text-[#00E8FF]" style="text-shadow: rgba(0, 232, 255, 0.4) 0px 0px 8px;"><span class="text-white" style="">FIT</span><span class="text-[#00E8FF]" style="">/</span><span class="text-white" style="">ASSIST</span></h1>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center bg-surface-container overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" data-alt="close up headshot profile of a fit man in athletic gear high contrast professional lighting dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtYV8EHbwGBAKAB9MSxY-qmr36go_ffe5X-DBzDl2okYtcaW8daoHLQ0xYnbuAVsrAM8ao8sgfbhKbUUhVPpUhY6gOIlof62ktNLVNoA7OHujXcoFiSBIt-J7JSsX1mkUkDlUZP7hoyEoxM8FOtwuX3eLNmoY8CP4J0O0GnoN5EkOaAkUMZTlJvj8oFW4MV-MkaM1lLz7F6F4BVa1uuNH2OsUWn86nodsjTkvEYa0ryZhJH5AqYfE7WAGbL2_V2Kj7PEnQBzBuno0" style=""/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-10">
+<!-- Profile Hero Section -->
+<section class="flex flex-col md:flex-row items-center md:items-start gap-8">
+<div class="relative">
+<div class="w-24 h-24 rounded-full border-2 border-primary-container flex items-center justify-center bg-surface-container-low text-primary-container font-black text-3xl tracking-tighter vacuum-shadow" style="">
+          JS
+        </div>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h2 class="text-3xl font-black tracking-tight text-on-surface mb-3" style="">John Smith</h2>
+<div class="flex flex-wrap justify-center md:justify-start gap-2">
+<span class="px-3 py-1 border border-primary-container/30 bg-primary-container/5 text-primary-container text-[10px] font-medium tracking-[0.05em] uppercase rounded-lg" style="">Weight Loss</span>
+<span class="px-3 py-1 border border-primary-container/30 bg-primary-container/5 text-primary-container text-[10px] font-medium tracking-[0.05em] uppercase rounded-lg" style="">Intermediate</span>
+</div>
+</div>
+</section>
+<!-- Plan & Stats Section -->
+<section class="glass-card rounded-xl p-6 border border-outline-variant/15 vacuum-shadow">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_#00E8FF]"></span>
+<p class="text-sm font-medium text-on-surface-variant uppercase tracking-widest" style="">Plan generations today: 1/2</p>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full w-1/2 bg-primary-container"></div>
+</div>
+</div>
+<button class="px-6 py-3 border border-primary-container text-primary-container text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-primary-container/10 active:scale-95 transition-all duration-200" style="">
+          Regenerate Plan
+        </button>
+</div>
+</section>
+<!-- Settings List -->
+<section class="space-y-2">
+<h3 class="text-[10px] font-medium tracking-[0.1em] text-outline uppercase ml-2 mb-4" style="">Core Preferences</h3>
+<div class="flex flex-col space-y-1">
+<!-- Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/15">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline group-hover:text-primary-container transition-colors" style="">account_circle</span>
+<span class="font-medium text-on-surface" style="">Account Settings</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" style="">chevron_right</span>
+</div>
+<!-- Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/15">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline group-hover:text-primary-container transition-colors" style="">notifications</span>
+<span class="font-medium text-on-surface" style="">Notification Preferences</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" style="">chevron_right</span>
+</div>
+<!-- Item with Toggle -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl border border-transparent">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline" style="">monitor_heart</span>
+<span class="font-medium text-on-surface" style="">Health App Integration</span>
+</div>
+<div class="w-12 h-6 bg-primary-container rounded-full relative flex items-center px-1">
+<div class="w-4 h-4 bg-on-primary-container rounded-full translate-x-6"></div>
+</div>
+</div>
+<!-- Static Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl border border-transparent opacity-60">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline" style="">dark_mode</span>
+<span class="font-medium text-on-surface" style="">Dark Mode</span>
+</div>
+<span class="text-[10px] font-bold text-primary-container uppercase tracking-tighter" style="">Always On</span>
+</div>
+<!-- Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/15">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline group-hover:text-primary-container transition-colors" style="">help_center</span>
+<span class="font-medium text-on-surface" style="">Help &amp; Support</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" style="">chevron_right</span>
+</div>
+</div>
+</section><div class="pt-8 flex justify-center w-full">
+<button class="text-[11px] font-black text-[#FF3131] uppercase tracking-[0.2em] hover:opacity-70 transition-opacity py-4 w-full bg-transparent border border-outline-variant/10 rounded-xl" style="border-color: #00E8FF;">
+    Sign Out Session
+  </button>
+</div>
+<!-- Logout Action -->
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-safe bg-[#131317]/60 backdrop-blur-lg z-50 border-t border-[#3b494c]/15 shadow-[0_-10px_40px_-5px_rgba(0,0,0,0.4)]">
+<button class="flex flex-col items-center justify-center text-[#97d0d9] opacity-70 hover:text-[#00E8FF] transition-colors scale-98 transition-transform duration-200" style="">
+<span class="material-symbols-outlined" style="">precision_manufacturing</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase" style="">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#97d0d9] opacity-70 hover:text-[#00E8FF] transition-colors scale-98 transition-transform duration-200" style="">
+<span class="material-symbols-outlined" style="">exercise</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase" style="">Workout</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#97d0d9] opacity-70 hover:text-[#00E8FF] transition-colors scale-98 transition-transform duration-200" style="">
+<span class="material-symbols-outlined" style="">restaurant</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase" style="">Nutrition</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#00E8FF] bg-[#1f1f23] rounded-lg px-3 py-1 scale-98 transition-transform duration-200" style="">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>person</span>
+<span class="font-['Inter'] font-medium text-[10px] tracking-[0.05em] uppercase" style="">Profile</span>
+</button>
+</nav>
+</body></html>
