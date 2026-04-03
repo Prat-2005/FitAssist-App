@@ -8,16 +8,22 @@ import redis
 from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, status, Depends
 from ai.generator import generate_workout_plan, generate_nutrition_plan
-from db.redis import get_redis_client
+from db import get_redis_client
 
 router = APIRouter()
 
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
+from sqlalchemy.orm import Session
+from db import get_db
+from models import User, Plan
+from schemas import PlanCreate, PlanUpdate, PlanResponse
+from middleware import get_current_user
+import uuid
 
 class UserProfile(BaseModel):
-    user_id: str = "anonymous"
+    user_id: str = "anonymous" # TODO M4: Replace with authenticated user ID from JWT
     goal: str = "General Fitness"
     fitness_level: str = "Beginner"
     days_per_week: int = 3
@@ -149,46 +155,86 @@ async def generate_nutrition_endpoint(profile: UserProfile):
     return {"nutrition_plan": plan}
 
 
-@router.get("/current")
-async def get_current_plan():
+@router.get("/current", response_model=PlanResponse)
+async def get_current_plan(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Get current user's active fitness plan
-    TODO: Implement current plan retrieval
     """
-    pass
+    plan = db.query(Plan).filter(
+        Plan.user_id == current_user.id,
+        Plan.is_active == True
+    ).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="No active plan found")
+    return plan
 
 
-@router.get("/{plan_id}")
-async def get_plan(plan_id: str):
+@router.get("/{plan_id}", response_model=PlanResponse)
+async def get_plan(plan_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Get specific fitness plan by ID
-    TODO: Implement plan retrieval by ID
     """
-    pass
+    plan = db.query(Plan).filter(Plan.id == plan_id, Plan.user_id == current_user.id).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return plan
 
 
-@router.put("/{plan_id}")
-async def update_plan(plan_id: str):
+@router.put("/{plan_id}", response_model=PlanResponse)
+async def update_plan(plan_id: uuid.UUID, plan_data: PlanUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Update existing fitness plan
-    TODO: Implement plan update with validation
     """
-    pass
+    plan = db.query(Plan).filter(Plan.id == plan_id, Plan.user_id == current_user.id).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+        
+    for key, value in plan_data.model_dump(exclude_unset=True).items():
+        setattr(plan, key, value)
+        
+    db.commit()
+    db.refresh(plan)
+    return plan
 
 
-@router.post("/{plan_id}/start")
-async def start_plan(plan_id: str):
+@router.post("/{plan_id}/start", response_model=PlanResponse)
+async def start_plan(plan_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Start executing a fitness plan
-    TODO: Implement plan activation and tracking initiation
     """
-    pass
+    plan = db.query(Plan).filter(Plan.id == plan_id, Plan.user_id == current_user.id).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+        
+    active_plans = db.query(Plan).filter(Plan.user_id == current_user.id, Plan.is_active == True).all()
+    for active_plan in active_plans:
+        active_plan.is_active = False
+        
+    plan.is_active = True
+    if not plan.started_at:
+        plan.started_at = datetime.utcnow()
+        
+    db.commit()
+    db.refresh(plan)
+    return plan
 
 
-@router.post("/{plan_id}/complete-workout")
-async def complete_workout(plan_id: str):
+@router.post("/{plan_id}/complete-workout", response_model=PlanResponse)
+async def complete_workout(plan_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Log completion of a workout session
-    TODO: Implement workout completion tracking and progress update
     """
-    pass
+    plan = db.query(Plan).filter(Plan.id == plan_id, Plan.user_id == current_user.id).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    
+    plan.progress_percentage = min(100, plan.progress_percentage + 10)
+    
+    if plan.progress_percentage == 100:
+        plan.is_completed = True
+        plan.completed_at = datetime.utcnow()
+        plan.is_active = False
+        
+    db.commit()
+    db.refresh(plan)
+    return plan

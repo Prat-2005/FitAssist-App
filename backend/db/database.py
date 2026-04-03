@@ -17,11 +17,14 @@ DATABASE_URL = os.getenv(
 )
 
 # Create database engine
-# TODO: Configure connection pooling and other engine parameters for production
+from sqlalchemy.pool import QueuePool
+
 engine = create_engine(
     DATABASE_URL,
-    poolclass=NullPool,  # Use NullPool for development; configure for production
-    echo=False  # Set to True for SQL debugging
+    poolclass=QueuePool,
+    pool_size=5,
+    max_overflow=10,
+    echo=False
 )
 
 # Create session factory
