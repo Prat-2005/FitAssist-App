@@ -24,7 +24,14 @@ app = FastAPI(
 )
 
 # CORS middleware configuration
-origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+
+if not origins:
+    raise ValueError("ALLOWED_ORIGINS environment variable is empty or not set. Explicit origins are required when credentials are allowed.")
+if "*" in origins:
+    raise ValueError("ALLOWED_ORIGINS cannot contain '*' when allow_credentials=True. Please specify exact domain URLs.")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

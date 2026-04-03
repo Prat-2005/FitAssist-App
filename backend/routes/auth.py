@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/register")
-async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """
     Register a new user
     """
@@ -48,7 +48,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(user_data: UserLogin, db: Session = Depends(get_db)):
+def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """
     Authenticate user and return JWT token
     """
@@ -77,19 +77,25 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
 
 
 from db import cache_set
-from middleware import oauth2_scheme, verify_token
+from middleware import security, verify_token
+from fastapi.security import HTTPAuthorizationCredentials
 import datetime
 
 @router.post("/logout")
-async def logout(token: str = Depends(oauth2_scheme)):
+async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """
     Logout user (invalidate token)
     """
+    token = credentials.credentials
     payload = verify_token(token)
     exp = payload.get("exp")
     if exp:
         now = datetime.datetime.utcnow().timestamp()
         ttl = int(exp - now)
         if ttl > 0:
-            await cache_set(f"blacklist_{token}", "revoked", ttl=ttl)
+            if not await cache_set(f"blacklist_{token}", "revoked", ttl=ttl):
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Token revocation is temporarily unavailable",
+                )
     return {"message": "Successfully logged out"}

@@ -27,3 +27,15 @@ class ProfileResponse(ProfileBase):
     model_config = {
         "from_attributes": True
     }
+
+class PublicProfileResponse(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    fitness_goal: Optional[str] = None
+    experience_level: Optional[str] = None
+    preferred_workouts: Optional[str] = None
+    equipment_available: Optional[str] = None
+
+    model_config = {
+        "from_attributes": True
+    }

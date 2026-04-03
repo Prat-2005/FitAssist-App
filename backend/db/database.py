@@ -52,5 +52,7 @@ def init_db():
     Initialize database with all tables
     TODO: Run this on application startup to create tables
     """
+    # Import all models to ensure they are registered with Base.metadata before creating tables
+    import models
     # Create all tables using the shared Base
     Base.metadata.create_all(bind=engine)

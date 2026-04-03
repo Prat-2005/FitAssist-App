@@ -7,12 +7,14 @@ import os
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import Request, HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 import bcrypt
 
 # Get JWT secret from environment
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not JWT_SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY must be set")
 ALGORITHM = "HS256"
 
 
@@ -20,13 +22,14 @@ from sqlalchemy.orm import Session
 from db import get_db, cache_get
 from models import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+security = HTTPBearer()
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     """
     Verify JWT token and retrieve the current user.
     Also checks redis blacklist for revoked tokens.
     """
+    token = credentials.credentials
     # Check if token is blacklisted
     is_blacklisted = await cache_get(f"blacklist_{token}")
     if is_blacklisted:
@@ -45,14 +48,47 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             headers={"WWW-Authenticate": "Bearer"},
         )
         
-    user = db.query(User).filter(User.email == email).first()
+    from starlette.concurrency import run_in_threadpool
+    def get_user_from_db():
+        return db.query(User).filter(User.email == email).first()
+        
+    user = await run_in_threadpool(get_user_from_db)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    return user
+
+
+security_optional = HTTPBearer(auto_error=False)
+
+async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional), db: Session = Depends(get_db)):
+    """
+    Verify JWT token if present, otherwise gracefully return None.
+    """
+    if not credentials:
+        return None
+    token = credentials.credentials
         
+    is_blacklisted = await cache_get(f"blacklist_{token}")
+    if is_blacklisted:
+        return None
+        
+    try:
+        payload = verify_token(token)
+        email = payload.get("sub")
+        if not email:
+            return None
+    except HTTPException:
+        return None
+        
+    from starlette.concurrency import run_in_threadpool
+    def get_user_from_db():
+        return db.query(User).filter(User.email == email).first()
+        
+    user = await run_in_threadpool(get_user_from_db)
     return user
 
 
