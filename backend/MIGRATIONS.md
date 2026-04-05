@@ -7,7 +7,7 @@ This directory contains Alembic database migrations for FitAssist. Migrations ma
 ### Before First Run (Initial Setup)
 Ensure your `.env` file contains:
 ```
-DATABASE_URL=postgresql://username:password@localhost:5432/fitassist
+DATABASE_URL=postgresql://your_user:your_password@your_host:5432/fitassist_db
 ```
 
 ### Applying Migrations
