@@ -44,7 +44,7 @@ These columns exist in the ORM model but NOT in existing databases. Using only `
 
 Create `.env` in project root:
 ```bash
-DATABASE_URL=postgresql://your_user:your_password@your_host:5432/fitassist
+DATABASE_URL=postgresql://your_user:your_password@your_host:5432/fitassist_db
 ```
 
 ### Initial Database Setup
