@@ -15,22 +15,30 @@ from db import get_db, get_redis_client
 from models import User, Plan
 from middleware import get_current_user
 import logging
+import asyncio
+from fastapi.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# TODO: Move wellness tips to config/CMS for easy updates and legal review audit
+# AUDIT_STATUS: Content pending legal/medical review before production deployment
+# Replace with CMS-managed content and ensure all claims are verified by legal team
+
 # Static list of rotating wellness tips
+# NOTE: These tips should be reviewed by legal and medical professionals
+# before deploying to production. Avoid specific medical claims.
 WELLNESS_TIPS = [
-    "Optimizing your parasympathetic tone through 4-7-8 breathing post-workout accelerates myofibrillar repair cycles.",
-    "Strategic cold water immersion post-lift enhances hormone-sensitive lipase activity and mitochondrial density.",
-    "Phosphocreatine recovery demands precise sleep architecture — prioritize deep stage 3 NREM for ATP resynthesis.",
-    "Circadian cortisol peaks optimize power output — schedule compound lifts within 2 hours of waking.",
-    "Intermittent fasting triggers autophagy, but maintain amino acid availability during training windows.",
-    "Magnesium glycinate supplementation before bed potentiates GABA receptor sensitivity for recovery.",
-    "Progressive overload activates neuromuscular adaptation before hypertrophy — focus on form the first 3 weeks.",
-    "Proper breathing patterns stabilize intra-abdominal pressure, enhancing force transfer efficiency by up to 15%.",
-    "Nutrient timing around training windows maximizes mTOR signaling and glycogen repletion.",
-    "Sleep deprivation reduces testosterone secretion by 25-30% — consistency beats perfection."
+    "Remember to take breaks during your workout and listen to your body's signals.",
+    "Proper technique matters more than intensity when learning new exercises.",
+    "Stay hydrated throughout your day and especially during workouts.",
+    "Aim for consistent activity rather than sporadic intense sessions.",
+    "Quality sleep supports your body's adaptation to training.",
+    "A balanced approach to nutrition complements your fitness routine.",
+    "Recovery days are an important part of any training program.",
+    "Gradual progression helps prevent injury and builds sustainable habits.",
+    "Consistency with your routine contributes to long-term fitness goals.",
+    "Listen to your body and adjust intensity as needed for your fitness level."
 ]
 
 
@@ -62,11 +70,13 @@ async def get_home_dashboard(
     # Rotate across all tips by calendar day
     today_index = now.toordinal()
     
-    # Get user's active plan
-    active_plan = db.query(Plan).filter(
-        Plan.user_id == current_user.id,
-        Plan.is_active == True
-    ).first()
+    # Get user's active plan (offload blocking query to thread pool)
+    active_plan = await run_in_threadpool(
+        lambda: db.query(Plan).filter(
+            Plan.user_id == current_user.id,
+            Plan.is_active == True
+        ).first()
+    )
     
     plan_progress_percent = 0
     active_plan_name = "No Active Plan"
@@ -79,9 +89,14 @@ async def get_home_dashboard(
         # Determine if today is a rest day (using consistent date_str)
         try:
             schedule = json.loads(active_plan.workout_schedule) if isinstance(active_plan.workout_schedule, str) else active_plan.workout_schedule
-            if isinstance(schedule, dict) and "days" in schedule:
-                for day in schedule["days"]:
-                    if day.get("day") == today_weekday and day.get("is_rest_day"):
+            days = schedule.get("days") if isinstance(schedule, dict) else None
+            if isinstance(days, list):
+                for day in days:
+                    if (
+                        isinstance(day, dict)
+                        and day.get("day") == today_weekday
+                        and day.get("is_rest_day")
+                    ):
                         is_today_rest_day = True
                         break
         except (json.JSONDecodeError, ValueError):
@@ -94,18 +109,20 @@ async def get_home_dashboard(
     workout_generations_today = 0
     nutrition_generations_today = 0
     
+    workout_key = f"workout_requests:{user_id}:{date_str}"
+    nutrition_key = f"nutrition_requests:{user_id}:{date_str}"
+
     try:
-        workout_key = f"workout_requests:{user_id}:{date_str}"
-        nutrition_key = f"nutrition_requests:{user_id}:{date_str}"
-        
         workout_count = await redis_client.get(workout_key)
-        nutrition_count = await redis_client.get(nutrition_key)
-        
         workout_generations_today = int(workout_count) if workout_count else 0
+    except (redis.RedisError, ValueError) as exc:
+        logger.warning("Failed to read Redis counter %s: %s", workout_key, exc)
+
+    try:
+        nutrition_count = await redis_client.get(nutrition_key)
         nutrition_generations_today = int(nutrition_count) if nutrition_count else 0
     except (redis.RedisError, ValueError) as exc:
-        # Redis unavailable or malformed value; default to 0
-        logger.warning("Failed to read usage counters from Redis: %s", exc)
+        logger.warning("Failed to read Redis counter %s: %s", nutrition_key, exc)
     
     # Select rotating tip based on same day reference as rest_day check
     body_function_tip = WELLNESS_TIPS[today_index % len(WELLNESS_TIPS)]

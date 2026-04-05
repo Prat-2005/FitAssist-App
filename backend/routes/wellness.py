@@ -49,10 +49,10 @@ def log_wellness(
     
     # Execute atomic upsert
     result = db.execute(stmt)
-    db.commit()
     
     # Get the upserted record from RETURNING clause
     wellness_log = result.scalars().first()
+    db.commit()
     
     return wellness_log
 
