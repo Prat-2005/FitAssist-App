@@ -34,6 +34,11 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
 
+    # Streak tracking
+    current_streak = Column(Integer, default=0)
+    longest_streak = Column(Integer, default=0)
+    last_workout_date = Column(String, nullable=True)  # YYYY-MM-DD string
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -11,6 +11,8 @@ class ProfileBase(BaseModel):
     experience_level: Optional[str] = None
     preferred_workouts: Optional[str] = None
     equipment_available: Optional[str] = None
+    days_per_week: Optional[int] = None
+    duration_minutes: Optional[int] = None
     medical_conditions: Optional[str] = None
     injuries: Optional[str] = None
 
