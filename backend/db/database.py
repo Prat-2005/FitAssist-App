@@ -13,7 +13,7 @@ from models.base import Base
 # Get database URL from environment
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://user:password@localhost:5432/fitassist"
+    "postgresql://user:password@localhost:5432/fitassist_db"
 )
 
 # Create database engine
