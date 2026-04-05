@@ -13,7 +13,7 @@ from db import get_redis_client
 router = APIRouter()
 
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from db import get_db
@@ -39,8 +39,8 @@ class UserProfile(BaseModel):
 
 # Request/Response models for log-day endpoint
 class LogDayRequest(BaseModel):
-    day_number: int
-    exercises_completed: int
+    day_number: conint(ge=1, le=7)  # Must be 1-7 (one week)
+    exercises_completed: conint(ge=0)  # Must be non-negative
 
 class LogDayResponse(BaseModel):
     plan: PlanResponse
@@ -297,26 +297,51 @@ def log_workout_day(
     if not plan.is_active or plan.is_completed:
         raise HTTPException(status_code=400, detail="Only active, incomplete plans can log days")
     
-    # Create WorkoutLog entry with ISO week and year
+    # Create WorkoutLog entry with ISO week and year (for idempotency)
     today = datetime.utcnow()
     date_str = today.strftime("%Y-%m-%d")
     iso_calendar = today.isocalendar()
+    week_number = iso_calendar[1]
+    year = iso_calendar[0]
     
-    workout_log = WorkoutLog(
-        user_id=current_user.id,
-        plan_id=plan_id,
-        day_number=log_day_req.day_number,
-        exercises_completed=log_day_req.exercises_completed,
-        week_number=iso_calendar[1],
-        year=iso_calendar[0],
-        completed_at=today
-    )
-    db.add(workout_log)
+    # Check if WorkoutLog already exists for this user, plan, and logical slot (day + week/year)
+    existing_log = db.query(WorkoutLog).filter(
+        WorkoutLog.user_id == current_user.id,
+        WorkoutLog.plan_id == plan_id,
+        WorkoutLog.day_number == log_day_req.day_number,
+        WorkoutLog.week_number == week_number,
+        WorkoutLog.year == year
+    ).first()
     
-    # Update plan progress (increment by 1/duration_days * 100)
+    if existing_log:
+        # Update existing record (idempotent)
+        existing_log.exercises_completed = log_day_req.exercises_completed
+        existing_log.completed_at = today
+        workout_log = existing_log
+    else:
+        # Create new record
+        workout_log = WorkoutLog(
+            user_id=current_user.id,
+            plan_id=plan_id,
+            day_number=log_day_req.day_number,
+            exercises_completed=log_day_req.exercises_completed,
+            week_number=week_number,
+            year=year,
+            completed_at=today
+        )
+        db.add(workout_log)
+    
+    # Recompute plan progress from scratch by counting completed WorkoutLog rows
+    # Progress = (completed_logs / duration_days) * 100, clamped 0–100
     if plan.duration_days and plan.duration_days > 0:
-        increment = round((1 / plan.duration_days) * 100)
-        plan.progress_percentage = min(100, plan.progress_percentage + increment)
+        completed_count = db.query(WorkoutLog).filter(
+            WorkoutLog.user_id == current_user.id,
+            WorkoutLog.plan_id == plan_id
+        ).count()
+        progress = (completed_count / float(plan.duration_days)) * 100.0
+        plan.progress_percentage = max(0.0, min(100.0, progress))
+    else:
+        plan.progress_percentage = 0.0
     
     # Handle streak logic
     last_workout_date = current_user.last_workout_date
@@ -412,7 +437,7 @@ def get_weekly_report(
     # Calculate metrics
     days_completed = len(set(log.day_number for log in week_logs))
     exercises_done = sum(log.exercises_completed for log in week_logs)
-    last_week_exercises = sum(log.exercises_completed for log in last_week_logs) or 1
+    last_week_exercises = sum(log.exercises_completed for log in last_week_logs)
     
     # Parse rest days from active plan
     rest_days = 0
@@ -439,14 +464,19 @@ def get_weekly_report(
             status = "completed"
         elif day_num in rest_day_set:
             status = "rest"
-        elif day_num <= now.weekday() + 1:
+        elif day_num < now.weekday() + 1:
             status = "missed"
         else:
             status = "upcoming"
         completion_grid.append(CompletionGridItem(day=day_name, status=status))
     
-    # Calculate volume change
-    volume_change_percent = round(((exercises_done - last_week_exercises) / last_week_exercises * 100)) if last_week_exercises > 0 else 0
+    # Calculate volume change with explicit zero-baseline handling
+    if last_week_exercises == 0:
+        # No baseline from last week, return 0 instead of dividing by zero
+        volume_change_percent = 0
+    else:
+        # Calculate percent change: (this_week - last_week) / last_week * 100
+        volume_change_percent = round(((exercises_done - last_week_exercises) / last_week_exercises * 100))
     
     # Week range
     week_start = now - timedelta(days=now.weekday())
@@ -522,7 +552,22 @@ def clear_plan_cache(
     """
     Clear completed plans from storage.
     Deletes all inactive, completed plans for the user.
+    Cascades delete to associated WorkoutLog rows to prevent orphans.
     """
+    # First, identify all Plan IDs matching the filter
+    plans_to_delete = db.query(Plan.id).filter(
+        Plan.user_id == current_user.id,
+        Plan.is_active == False,
+        Plan.is_completed == True
+    ).all()
+    
+    plan_ids = [plan[0] for plan in plans_to_delete]
+    
+    # Delete dependent WorkoutLog rows first (prevents orphans)
+    if plan_ids:
+        db.query(WorkoutLog).filter(WorkoutLog.plan_id.in_(plan_ids)).delete()
+    
+    # Then delete the Plan rows using the same filter
     deleted_count = db.query(Plan).filter(
         Plan.user_id == current_user.id,
         Plan.is_active == False,

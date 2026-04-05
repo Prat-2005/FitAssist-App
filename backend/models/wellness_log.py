@@ -3,7 +3,7 @@ Wellness Log Model
 SQLAlchemy ORM model for tracking daily wellness metrics
 """
 
-from sqlalchemy import Column, DateTime, Integer, Float, String, ForeignKey
+from sqlalchemy import Column, DateTime, Integer, Float, String, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 import uuid
@@ -14,6 +14,7 @@ class WellnessLog(Base):
     """
     Wellness log model for tracking daily wellness metrics
     Records body battery, sleep quality, and hydration levels
+    One entry per user per day (enforced by unique constraint)
     """
     __tablename__ = "wellness_logs"
 
@@ -35,6 +36,11 @@ class WellnessLog(Base):
     logged_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Composite unique constraint: one row per user per day
+    __table_args__ = (
+        UniqueConstraint('user_id', 'date', name='uq_wellness_log_user_date'),
+    )
 
     def __repr__(self):
         return f"<WellnessLog(id={self.id}, user_id={self.user_id}, date={self.date})>"

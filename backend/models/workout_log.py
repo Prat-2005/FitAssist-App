@@ -22,7 +22,7 @@ class WorkoutLog(Base):
 
     # Foreign keys
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
-    plan_id = Column(UUID(as_uuid=True), ForeignKey("plans.id"), nullable=False, index=True)
+    plan_id = Column(UUID(as_uuid=True), ForeignKey("plans.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # Workout day details
     day_number = Column(Integer, nullable=False)  # 1-7, which day of the plan was completed

@@ -48,7 +48,14 @@ async def get_home_dashboard(
     """
     Home screen dashboard endpoint.
     Returns plan progress, streak, generation counts, and a rotating wellness tip.
+    Uses consistent UTC timezone for all date/time operations.
     """
+    
+    # Capture single timezone reference for entire handler
+    now = datetime.utcnow()
+    date_str = now.strftime("%Y-%m-%d")
+    today_weekday = now.weekday() + 1  # 1-7 (Mon-Sun)
+    today_index = now.weekday()
     
     # Get user's active plan
     active_plan = db.query(Plan).filter(
@@ -64,13 +71,10 @@ async def get_home_dashboard(
         plan_progress_percent = active_plan.progress_percentage
         active_plan_name = active_plan.name
         
-        # Determine if today is a rest day
+        # Determine if today is a rest day (using consistent date_str)
         try:
             schedule = json.loads(active_plan.workout_schedule) if isinstance(active_plan.workout_schedule, str) else active_plan.workout_schedule
             if isinstance(schedule, dict) and "days" in schedule:
-                now = datetime.utcnow()
-                today_weekday = now.weekday() + 1  # 1-7 (Mon-Sun)
-                
                 for day in schedule["days"]:
                     if day.get("day") == today_weekday and day.get("is_rest_day"):
                         is_today_rest_day = True
@@ -78,9 +82,8 @@ async def get_home_dashboard(
         except (json.JSONDecodeError, ValueError):
             is_today_rest_day = False
     
-    # Get generation counts for today
+    # Get generation counts for today (using consistent date_str)
     redis_client = get_redis_client()
-    date_str = datetime.now().strftime("%Y-%m-%d")
     user_id = str(current_user.id)
     
     workout_generations_today = 0
@@ -99,8 +102,7 @@ async def get_home_dashboard(
         # Redis unavailable, default to 0
         pass
     
-    # Select rotating tip based on day of week
-    today_index = datetime.utcnow().weekday()
+    # Select rotating tip based on same day reference as rest_day check
     body_function_tip = WELLNESS_TIPS[today_index % len(WELLNESS_TIPS)]
     
     return HomeResponse(

@@ -5,6 +5,7 @@ Handles wellness metric logging and retrieval
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import insert, text
 from datetime import datetime
 from db import get_db
 from models import User, WellnessLog
@@ -22,43 +23,41 @@ def log_wellness(
 ):
     """
     Log or update today's wellness metrics.
-    Uses upsert logic: if entry exists for today, update it; otherwise create new.
+    Uses atomic upsert: INSERT with ON CONFLICT (user_id, date) DO UPDATE
+    Ensures only one entry per user per day, even with concurrent requests.
     """
     today_str = datetime.utcnow().strftime("%Y-%m-%d")
     
-    # Check if entry exists for today
-    existing_log = db.query(WellnessLog).filter(
+    # Build insert statement with conflict handling
+    stmt = insert(WellnessLog).values(
+        user_id=current_user.id,
+        date=today_str,
+        body_battery=wellness_data.body_battery,
+        sleep_score=wellness_data.sleep_score,
+        hydration_liters=wellness_data.hydration_liters,
+        logged_at=datetime.utcnow()
+    ).on_conflict_do_update(
+        index_elements=['user_id', 'date'],
+        set_={
+            'body_battery': wellness_data.body_battery,
+            'sleep_score': wellness_data.sleep_score,
+            'hydration_liters': wellness_data.hydration_liters,
+            'logged_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow()
+        }
+    ).returning(WellnessLog)
+    
+    # Execute atomic upsert
+    result = db.execute(stmt)
+    db.commit()
+    
+    # Fetch the upserted record
+    wellness_log = db.query(WellnessLog).filter(
         WellnessLog.user_id == current_user.id,
         WellnessLog.date == today_str
     ).first()
     
-    if existing_log:
-        # Update existing entry
-        if wellness_data.body_battery is not None:
-            existing_log.body_battery = wellness_data.body_battery
-        if wellness_data.sleep_score is not None:
-            existing_log.sleep_score = wellness_data.sleep_score
-        if wellness_data.hydration_liters is not None:
-            existing_log.hydration_liters = wellness_data.hydration_liters
-        
-        existing_log.logged_at = datetime.utcnow()
-        db.commit()
-        db.refresh(existing_log)
-        return existing_log
-    else:
-        # Create new entry
-        new_log = WellnessLog(
-            user_id=current_user.id,
-            body_battery=wellness_data.body_battery,
-            sleep_score=wellness_data.sleep_score,
-            hydration_liters=wellness_data.hydration_liters,
-            date=today_str,
-            logged_at=datetime.utcnow()
-        )
-        db.add(new_log)
-        db.commit()
-        db.refresh(new_log)
-        return new_log
+    return wellness_log
 
 
 @router.get("", response_model=WellnessLogResponse)
