@@ -5,7 +5,7 @@ Handles wellness metric logging and retrieval
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import insert, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from datetime import datetime
 from db import get_db
 from models import User, WellnessLog
@@ -29,7 +29,7 @@ def log_wellness(
     today_str = datetime.utcnow().strftime("%Y-%m-%d")
     
     # Build insert statement with conflict handling
-    stmt = insert(WellnessLog).values(
+    stmt = pg_insert(WellnessLog).values(
         user_id=current_user.id,
         date=today_str,
         body_battery=wellness_data.body_battery,

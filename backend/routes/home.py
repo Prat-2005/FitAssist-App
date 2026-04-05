@@ -4,6 +4,7 @@ Handles all home screen data retrieval
 """
 
 import json
+from arrow import now
 from fastapi import APIRouter, Depends, HTTPException
 import redis
 from sqlalchemy.orm import Session
@@ -58,7 +59,8 @@ async def get_home_dashboard(
     now = datetime.utcnow()
     date_str = now.strftime("%Y-%m-%d")
     today_weekday = now.weekday() + 1  # 1-7 (Mon-Sun)
-    today_index = now.weekday()
+    # Rotate across all tips by calendar day
+    today_index = now.toordinal()
     
     # Get user's active plan
     active_plan = db.query(Plan).filter(
