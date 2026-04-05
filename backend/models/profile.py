@@ -3,7 +3,7 @@ User Profile Model
 SQLAlchemy ORM model for extended user profile information
 """
 
-from sqlalchemy import Column, String, DateTime, Float, ForeignKey, Text
+from sqlalchemy import Column, String, DateTime, Float, ForeignKey, Text, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 import uuid
@@ -34,6 +34,8 @@ class Profile(Base):
     experience_level = Column(String, nullable=True)  # e.g., "beginner", "intermediate", "advanced"
     preferred_workouts = Column(Text, nullable=True)  # JSON string of preferences
     equipment_available = Column(Text, nullable=True)  # JSON string of available equipment
+    days_per_week = Column(Integer, nullable=True)
+    duration_minutes = Column(Integer, nullable=True)
 
     # Health information
     medical_conditions = Column(Text, nullable=True)  # JSON string of conditions

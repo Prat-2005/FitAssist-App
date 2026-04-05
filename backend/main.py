@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 # Import routes (use absolute imports)
-from routes import auth_router as auth, profile_router as profile, plan_router as plan
+from routes import auth_router as auth, profile_router as profile, plan_router as plan, home_router as home, wellness_router as wellness
 from db import init_db
 
 
@@ -46,6 +46,8 @@ app.add_middleware(
 app.include_router(auth, prefix="/api/auth", tags=["Authentication"])
 app.include_router(profile, prefix="/api/profile", tags=["Profile"])
 app.include_router(plan, prefix="/api/plan", tags=["Fitness Plans"])
+app.include_router(home, prefix="/api/home", tags=["Dashboard"])
+app.include_router(wellness, prefix="/api/wellness", tags=["Wellness"])
 
 # Health check endpoint
 @app.get("/health", tags=["Health"])

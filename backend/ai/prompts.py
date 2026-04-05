@@ -30,7 +30,9 @@ safe, effective, and personalized 7-day workout plans based on the user profile 
           "rest_seconds": <integer>,
           "instructions": "<2-3 clear sentences on how to perform>",
           "caution": "<warning string if moderate/high risk, else null>",
-          "quick_fix": "<1-sentence fix if caution exists, else null>"
+          "quick_fix": "<1-sentence fix if caution exists, else null>",
+          "target_muscle": "<primary muscle group targeted e.g. Pectoralis Major, Quadriceps, Deltoids>",
+          "weight_kg": <float or null — suggested starting weight in kg, only for weighted exercises, null for bodyweight>
         }
       ]
     }
@@ -58,6 +60,17 @@ safe, effective, and personalized 7-day workout plans based on the user profile 
   Behind-the-Neck Press, Upright Row, Standing Calf Raise (high reps).
 - quick_fix must be a short, actionable tip a beginner can do immediately if pain or cramp occurs.
 - For safe, low-risk exercises (e.g. Walking, Plank, Bicep Curl): set both caution and quick_fix to null.
+
+## TARGET MUSCLE AND WEIGHT RULES
+- target_muscle MUST ALWAYS be populated for every exercise — never null. Specify the primary muscle
+  group (e.g. Pectoralis Major, Quadriceps, Deltoids, Latissimus Dorsi, Trapezius, Biceps, Triceps, Rectus Abdominis, Gluteus Maximus, Gastrocnemius).
+- weight_kg rules:
+  * For bodyweight exercises (Push-ups, Pull-ups, Squats, Lunges, Planks, Crunches, etc.): weight_kg = null
+  * For cardio exercises (Running, Rowing, Cycling, Jump Rope, etc.): weight_kg = null
+  * For weighted exercises (Dumbbell Bicep Curl, Barbell Squat, Cable Chest Press, etc.): suggested starting weight in kg
+  * For beginners: suggest conservative weights (light dumbbells, 8-10 kg for most upper body, 15-20 kg for lower body)
+  * For intermediate: suggest moderate weights (12-20 kg for upper body, 25-35 kg for lower body)
+  * For advanced: suggest heavier weights (20-30+ kg for upper body, 40+ kg for lower body)
 
 ## SAFETY RULES
 - Never prescribe maximum-effort or "train to failure" sets for Beginner level.
@@ -104,6 +117,7 @@ user's fitness goal and complements their workout schedule.
 {
   "plan_name": "<descriptive name e.g. 7-Day Weight Loss Meal Plan>",
   "daily_calories_target": <integer — estimated daily calorie target>,
+  "metabolic_state": "<short energetic label for current nutritional phase e.g. 'ANABOLIC SURGE', 'FAT BURN MODE', 'MAINTENANCE FLOW', 'RECOVERY PHASE'>",
   "summary": "<2-sentence overview of the nutrition approach>",
   "nutrition_tips": [
     "<tip 1>",
@@ -139,6 +153,15 @@ user's fitness goal and complements their workout schedule.
     }
   ]
 }
+
+## METABOLIC STATE RULES
+- metabolic_state MUST ALWAYS be a short 2-3 word uppercase label that describes the nutritional phase.
+- Selection rules based on fitness goal:
+  * Weight Loss goal → "FAT BURN MODE" or "CALORIC DEFICIT"
+  * Muscle Gain goal → "ANABOLIC SURGE" or "HYPERTROPHY PHASE"
+  * General Fitness goal → "MAINTENANCE FLOW" or "BALANCE PROTOCOL"
+  * Flexibility goal → "RECOVERY PHASE" or "MOBILITY FLOW"
+- This label should be motivating and energetic to reinforce the user's goal throughout the meal plan.
 
 ## GOAL-BASED NUTRITION RULES
 Weight Loss:
