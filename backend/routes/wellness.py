@@ -39,9 +39,9 @@ def log_wellness(
     ).on_conflict_do_update(
         index_elements=['user_id', 'date'],
         set_={
-            'body_battery': wellness_data.body_battery,
-            'sleep_score': wellness_data.sleep_score,
-            'hydration_liters': wellness_data.hydration_liters,
+            'body_battery': wellness_data.body_battery if wellness_data.body_battery is not None else WellnessLog.body_battery,
+            'sleep_score': wellness_data.sleep_score if wellness_data.sleep_score is not None else WellnessLog.sleep_score,
+            'hydration_liters': wellness_data.hydration_liters if wellness_data.hydration_liters is not None else WellnessLog.hydration_liters,
             'logged_at': datetime.utcnow(),
             'updated_at': datetime.utcnow()
         }
@@ -51,11 +51,8 @@ def log_wellness(
     result = db.execute(stmt)
     db.commit()
     
-    # Fetch the upserted record
-    wellness_log = db.query(WellnessLog).filter(
-        WellnessLog.user_id == current_user.id,
-        WellnessLog.date == today_str
-    ).first()
+    # Get the upserted record from RETURNING clause
+    wellness_log = result.scalars().first()
     
     return wellness_log
 

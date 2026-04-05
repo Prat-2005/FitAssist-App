@@ -5,6 +5,7 @@ Handles all home screen data retrieval
 
 import json
 from fastapi import APIRouter, Depends, HTTPException
+import redis
 from sqlalchemy.orm import Session
 from datetime import datetime
 from pydantic import BaseModel
@@ -12,7 +13,9 @@ from typing import Optional
 from db import get_db, get_redis_client
 from models import User, Plan
 from middleware import get_current_user
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Static list of rotating wellness tips
@@ -98,9 +101,9 @@ async def get_home_dashboard(
         
         workout_generations_today = int(workout_count) if workout_count else 0
         nutrition_generations_today = int(nutrition_count) if nutrition_count else 0
-    except Exception:
-        # Redis unavailable, default to 0
-        pass
+    except (redis.RedisError, ValueError) as exc:
+        # Redis unavailable or malformed value; default to 0
+        logger.warning("Failed to read usage counters from Redis: %s", exc)
     
     # Select rotating tip based on same day reference as rest_day check
     body_function_tip = WELLNESS_TIPS[today_index % len(WELLNESS_TIPS)]

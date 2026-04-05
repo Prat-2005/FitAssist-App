@@ -77,10 +77,9 @@ def run_migrations_online() -> None:
     # Use the existing engine from db.database, or create from DATABASE_URL env var
     from sqlalchemy import create_engine as create_eng
     
-    database_url = os.getenv(
-        "DATABASE_URL",
-        "postgresql://user:password@localhost:5432/fitassist_db"
-    )
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL environment variable is not set")
     
     # Create a new engine for migrations with NullPool
     connectable = create_eng(database_url, poolclass=pool.NullPool)

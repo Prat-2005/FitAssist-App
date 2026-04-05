@@ -16,6 +16,8 @@ from datetime import datetime
 from pydantic import BaseModel, conint
 from typing import Optional, List
 from sqlalchemy.orm import Session
+from sqlalchemy import insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from db import get_db
 from models import User, Plan, WorkoutLog, WellnessLog
 from schemas import PlanCreate, PlanUpdate, PlanResponse
@@ -39,8 +41,8 @@ class UserProfile(BaseModel):
 
 # Request/Response models for log-day endpoint
 class LogDayRequest(BaseModel):
-    day_number: conint(ge=1, le=7)  # Must be 1-7 (one week)
-    exercises_completed: conint(ge=0)  # Must be non-negative
+    day_number: conint(ge=1, le=7)  # type: ignore # Must be 1-7 (one week)
+    exercises_completed: conint(ge=0)  # type: ignore # Must be non-negative
 
 class LogDayResponse(BaseModel):
     plan: PlanResponse
@@ -70,7 +72,7 @@ async def generate_workout_endpoint(profile: UserProfile, current_user: Optional
     Includes rate limiting of 2 requests per user per day.
     """
     redis_client = get_redis_client()
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
     user_id = str(current_user.id) if current_user else "anonymous"
     
     global_key = f"rate_limit:global:{date_str}"
@@ -131,7 +133,7 @@ async def generate_nutrition_endpoint(profile: UserProfile, current_user: Option
     Includes rate limiting of 2 requests per user per day.
     """
     redis_client = get_redis_client()
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
     user_id = str(current_user.id) if current_user else "anonymous"
     
     global_key = f"rate_limit:global:{date_str}"
@@ -297,39 +299,34 @@ def log_workout_day(
     if not plan.is_active or plan.is_completed:
         raise HTTPException(status_code=400, detail="Only active, incomplete plans can log days")
     
-    # Create WorkoutLog entry with ISO week and year (for idempotency)
+    # Create WorkoutLog entry with ISO week and year (atomic upsert via ON CONFLICT)
     today = datetime.utcnow()
     date_str = today.strftime("%Y-%m-%d")
     iso_calendar = today.isocalendar()
     week_number = iso_calendar[1]
     year = iso_calendar[0]
     
-    # Check if WorkoutLog already exists for this user, plan, and logical slot (day + week/year)
-    existing_log = db.query(WorkoutLog).filter(
-        WorkoutLog.user_id == current_user.id,
-        WorkoutLog.plan_id == plan_id,
-        WorkoutLog.day_number == log_day_req.day_number,
-        WorkoutLog.week_number == week_number,
-        WorkoutLog.year == year
-    ).first()
+    # Use PostgreSQL atomic upsert: INSERT ... ON CONFLICT (user_id, plan_id, day_number, week_number, year) DO UPDATE
+    # This ensures only one log per user per plan per day/week/year, even with concurrent requests
+    stmt = pg_insert(WorkoutLog).values(
+        user_id=current_user.id,
+        plan_id=plan_id,
+        day_number=log_day_req.day_number,
+        exercises_completed=log_day_req.exercises_completed,
+        week_number=week_number,
+        year=year,
+        completed_at=today
+    ).on_conflict_do_update(
+        index_elements=['user_id', 'plan_id', 'day_number', 'week_number', 'year'],
+        set_={
+            'exercises_completed': log_day_req.exercises_completed,
+            'completed_at': today,
+            'updated_at': today
+        }
+    )
     
-    if existing_log:
-        # Update existing record (idempotent)
-        existing_log.exercises_completed = log_day_req.exercises_completed
-        existing_log.completed_at = today
-        workout_log = existing_log
-    else:
-        # Create new record
-        workout_log = WorkoutLog(
-            user_id=current_user.id,
-            plan_id=plan_id,
-            day_number=log_day_req.day_number,
-            exercises_completed=log_day_req.exercises_completed,
-            week_number=week_number,
-            year=year,
-            completed_at=today
-        )
-        db.add(workout_log)
+    db.execute(stmt)
+    db.flush()
     
     # Recompute plan progress from scratch by counting completed WorkoutLog rows
     # Progress = (completed_logs / duration_days) * 100, clamped 0–100
@@ -422,11 +419,9 @@ def get_weekly_report(
     ).all()
     
     # Get last week's exercises for comparison
-    last_week = current_week - 1
-    last_year = current_year
-    if last_week < 1:
-        last_week = 52
-        last_year -= 1
+    prev_iso = (now - timedelta(days=7)).isocalendar()
+    last_week = prev_iso[1]
+    last_year = prev_iso[0]
     
     last_week_logs = db.query(WorkoutLog).filter(
         WorkoutLog.user_id == current_user.id,
@@ -513,7 +508,7 @@ async def get_usage_today(
     Returns counts and limits for workout and nutrition plans.
     """
     redis_client = get_redis_client()
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
     user_id = str(current_user.id)
     
     workout_count = 0
